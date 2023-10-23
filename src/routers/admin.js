@@ -9,15 +9,24 @@ const router = new express.Router()
 // Endpoint for codesystem creation.
 router.post('/admin/codesystem', async (req, res) => {
 
+    // TODO: review the HTTP response codes according to the specification.
     try {
 
+        if(req.body.resourceType !== "CodeSystem") {
+            // Only CodeSystems are accepted.
+            return res.status(500).send("aaa");
+        }
+        if(req.body.hasOwnProperty("id")) {
+            // The element "id" is not expected in POST requests.
+            return res.status(500).send("bbb");
+        }
+
         // Validate the terminology structure using the FHIR® JSON schema.
-        // TODO: review the HTTP response codes according to the specification.
         const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(req.body));
         if (!valid) {
-            res.status(500).send(errors);
+            return res.status(500).send(errors);
         } else {
-            res.status(201).send();
+            return res.status(201).send("ccc");
         }
 
     } catch (e) {
