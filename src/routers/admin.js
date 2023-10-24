@@ -12,21 +12,23 @@ router.post('/admin/codesystem', async (req, res) => {
     // TODO: review the HTTP response codes according to the specification.
     try {
 
-        if(req.body.resourceType !== "CodeSystem") {
+        // For evaluation and adjustements.
+        let codesystem = req.body;
+
+        if(codesystem.resourceType !== "CodeSystem") {
             // Only CodeSystems are accepted.
             return res.status(500).send("aaa");
         }
-        if(req.body.hasOwnProperty("id")) {
-            // The element "id" is not expected in POST requests.
-            return res.status(500).send("bbb");
-        }
+
+        // Insert or replace the content of the element "id" with the server-generated ID.
+        codesystem.id = (++lastGeneratedId).toString();
 
         // Validate the terminology structure using the FHIR® JSON schema.
-        const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(req.body));
+        const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(codesystem));
         if (!valid) {
             return res.status(500).send(errors);
         } else {
-            return res.status(201).send("ccc");
+            return res.status(201).send(codesystem.id);
         }
 
     } catch (e) {

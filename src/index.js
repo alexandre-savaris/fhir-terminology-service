@@ -6,6 +6,9 @@ import * as adminRouter from './routers/admin.js';
 // Port number to be used by the server.
 const port = process.env.PORT;
 
+// Last generated ID for POSTed terminologies.
+global.lastGeneratedId = 0;
+
 // A new express instance.
 const app = express();
 // Defines the middleware to parse incoming request bodies as JSON.
