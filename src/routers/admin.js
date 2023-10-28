@@ -26,9 +26,8 @@ router.post('/admin/codesystem', async (req, res) => {
         if(codesystem.resourceType !== "CodeSystem") {
 
             // Only CodeSystems are accepted.
-            // TODO: correct template.
             filledTemplate = await utils.renderTemplate(template, {
-                div: `<div xmlns=\"http://www.w3.org/1999/xhtml\"><h1>Operation Outcome</h1><h2>ERROR</h2>FTS-001: Incorrect resource type found, expected &quot;CodeSystem&quot; but found &quot;CodeSystemm&quot;</div>`,
+                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2>FTS-001: Incorrect resource type found, expected &quot;CodeSystem&quot; but found &quot;CodeSystemm&quot;</div>`,
                 severity: "error",
                 code: "processing",
                 diagnostics: `FTS-001: Incorrect resource type found, expected "CodeSystem" but found "CodeSystemm"`
@@ -47,7 +46,18 @@ router.post('/admin/codesystem', async (req, res) => {
         // Validate the CodeSystem structure using the FHIR® JSON schema.
         const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(codesystem));
         if (!valid) {
-            return res.status(500).send(errors);
+
+            // Return the fist error.
+            const firstError = JSON.stringify(errors[0]);
+            filledTemplate = await utils.renderTemplate(template, {
+                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2>FTS-002: Incorrect resource structure<br /><br />${firstError}</div>`,
+                severity: "error",
+                code: "processing",
+                diagnostics: `FTS-002: Incorrect resource structure\n\n${firstError}`
+            }, { });
+
+
+            return res.status(400).send(filledTemplate);
         }
 
         // Save the CodeSystem to disk.
