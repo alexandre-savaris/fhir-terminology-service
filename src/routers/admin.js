@@ -27,13 +27,13 @@ router.post('/admin/codesystem', async (req, res) => {
 
             // Only CodeSystems are accepted.
             filledTemplate = await utils.renderTemplate(template, {
-                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2>FTS-001: Incorrect resource type found, expected &quot;CodeSystem&quot; but found &quot;CodeSystemm&quot;</div>`,
+                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-001: ${utils.ftsErrors['FTS-E-001']}.</h3>Expected &quot;CodeSystem&quot;, but found &quot;${codesystem.resourceType}&quot;.</div>`,
                 severity: "error",
                 code: "processing",
-                diagnostics: `FTS-001: Incorrect resource type found, expected "CodeSystem" but found "CodeSystemm"`
+                diagnostics: `FTS-E-001: ${utils.ftsErrors['FTS-E-001']}. Expected \\"CodeSystem\\", but found \\"${codesystem.resourceType}\\".`
             }, { });
-    
-            return res.status(400).send(filledTemplate);
+
+            return res.status(400).setHeader('Content-Type', 'application/fhir+json').send(filledTemplate);
         }
 
         // Insert or replace the content of the element "id" with the server-generated ID.
@@ -48,16 +48,17 @@ router.post('/admin/codesystem', async (req, res) => {
         if (!valid) {
 
             // Return the fist error.
-            const firstError = JSON.stringify(errors[0]);
+            // TODO: review quotation.
+            const firstError = JSON.stringify(JSON.stringify(errors[0]));
             filledTemplate = await utils.renderTemplate(template, {
-                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2>FTS-002: Incorrect resource structure<br /><br />${firstError}</div>`,
+                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-002: ${utils.ftsErrors['FTS-E-002']}.</h3>${firstError}</div>`,
                 severity: "error",
                 code: "processing",
-                diagnostics: `FTS-002: Incorrect resource structure\n\n${firstError}`
+                diagnostics: `FTS-E-002: ${utils.ftsErrors['FTS-E-002']}. ${firstError}`
             }, { });
 
 
-            return res.status(400).send(filledTemplate);
+            return res.status(400).setHeader('Content-Type', 'application/fhir+json').send(filledTemplate);
         }
 
         // Save the CodeSystem to disk.
