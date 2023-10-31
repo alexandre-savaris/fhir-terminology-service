@@ -45,11 +45,15 @@ router.post('/admin/codesystem', async (req, res) => {
 
         // Validate the CodeSystem structure using the FHIR® JSON schema.
         const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(codesystem));
+        console.log(errors);
         if (!valid) {
 
             // Return the fist error.
-            // TODO: review quotation.
-            const firstError = JSON.stringify(JSON.stringify(errors[0]));
+            // JSON.stringify is called twice to escape quotation marks.
+            let firstError = JSON.stringify(JSON.stringify(errors[0]));
+            // The second call to JSON.stringify introduces quotation marks at the beginning and
+            // at the end of the string. Both are removed to guarantee the correct JSON validation.
+            firstError = firstError.replace(/^\"|\"$/g, '');
             filledTemplate = await utils.renderTemplate(template, {
                 div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-002: ${utils.ftsErrors['FTS-E-002']}.</h3>${firstError}</div>`,
                 severity: "error",
