@@ -21,31 +21,30 @@ router.post('/admin/codesystem', async (req, res) => {
         let filledTemplate = '';
 
         // For evaluation and adjustements.
-        let codesystem = req.body;
+        let codeSystem = req.body;
 
-        if(codesystem.resourceType !== "CodeSystem") {
+        if(codeSystem.resourceType !== "CodeSystem") {
 
             // Only CodeSystems are accepted.
             filledTemplate = await utils.renderTemplate(template, {
-                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-001: ${utils.ftsErrors['FTS-E-001']}.</h3>Expected &quot;CodeSystem&quot;, but found &quot;${codesystem.resourceType}&quot;.</div>`,
+                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-001: ${utils.ftsErrors['FTS-E-001']}.</h3>Expected &quot;CodeSystem&quot;, but found &quot;${codeSystem.resourceType}&quot;.</div>`,
                 severity: "error",
                 code: "processing",
-                diagnostics: `FTS-E-001: ${utils.ftsErrors['FTS-E-001']}. Expected \\"CodeSystem\\", but found \\"${codesystem.resourceType}\\".`
+                diagnostics: `FTS-E-001: ${utils.ftsErrors['FTS-E-001']}. Expected \\"CodeSystem\\", but found \\"${codeSystem.resourceType}\\".`
             }, { });
 
             return res.status(400).setHeader('Content-Type', 'application/fhir+json').send(filledTemplate);
         }
 
         // Insert or replace the content of the element "id" with the server-generated ID.
-        codesystem.id = (++lastGeneratedId).toString();
+        codeSystem.id = (++lastGeneratedId).toString();
         // Insert metadata about the CodeSystem.
-        codesystem.meta = {};
-        codesystem.meta.versionId = '1';
-        codesystem.meta.lastUpdated = date.format(new Date(), 'YYYY-MM-DDTHH:mm:ss.SSSZZ');
+        codeSystem.meta = {};
+        codeSystem.meta.versionId = '1';
+        codeSystem.meta.lastUpdated = date.format(new Date(), 'YYYY-MM-DDTHH:mm:ss.SSSZZ');
 
         // Validate the CodeSystem structure using the FHIR® JSON schema.
-        const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(codesystem));
-        console.log(errors);
+        const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(codeSystem));
         if (!valid) {
 
             // Return the fist error.
@@ -66,15 +65,22 @@ router.post('/admin/codesystem', async (req, res) => {
         }
 
         // Save the CodeSystem to disk.
-        await fs.writeFile(process.env.TERMINOLOGIES_BASEPATH + '/codesystems/' + `${codesystem.id}.json`,
-            JSON.stringify(codesystem), { encoding: 'utf8' }, (err) => {
+        await fs.writeFile(`${process.env.TERMINOLOGIES_BASEPATH}/codesystems/${codeSystem.id}_${codeSystem.meta.versionId}.json`,
+            JSON.stringify(codeSystem), { encoding: 'utf8' }, (err) => {
             if (err) {
                 return res.status(500).send(err);
             }
         })
-    
+
+        // Load the CodeSystem into the memory map.
+        utils.loadCodeSystemIntoManyKeysMap(codeSystem.id, codeSystem.meta.versionId, codeSystem.concept);
+        // for (const [keys, value] of terminologies) {
+        //     console.log(keys);
+        //     console.log(value);
+        // }
+        
         // Success!
-        return res.status(201).send(codesystem);
+        return res.status(201).send(codeSystem);
 
     } catch (e) {
         res.status(500).send(e);

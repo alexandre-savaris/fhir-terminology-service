@@ -2,12 +2,21 @@
 import express from 'express';
 // For routing administrative endpoints.
 import * as adminRouter from './routers/admin.js';
+// For mapping the CodeSystems into memory.
+import ManyKeysMap from 'many-keys-map';
+// For accessig the utility functions.
+import * as utils from '../lib/utils.js';
 
 // Port number to be used by the server.
 const port = process.env.PORT;
 
 // Last generated ID for POSTed terminologies.
 global.lastGeneratedId = 0;
+// The ManyKeysMap for storing terminologies into memory.
+global.terminologies = new ManyKeysMap();
+
+// ???
+await utils.loadCodeSystemsFromDisk();
 
 // A new express instance.
 const app = express();
