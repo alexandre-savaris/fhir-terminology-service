@@ -15,8 +15,8 @@ global.lastGeneratedId = 0;
 // The ManyKeysMap for storing terminologies into memory.
 global.terminologies = new ManyKeysMap();
 
-// ???
-await utils.loadCodeSystemsFromDisk();
+// Load CodeSystems from disk.
+utils.loadCodeSystemsFromDisk();
 
 // A new express instance.
 const app = express();

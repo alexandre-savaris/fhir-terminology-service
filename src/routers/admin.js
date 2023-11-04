@@ -7,17 +7,18 @@ import * as fs from 'fs/promises';
 // For date and time formatting.
 import date from 'date-and-time';
 
+// TODO: review sync and async calls.
+
 // Router for the administrative endpoints.
 const router = new express.Router()
 
 // Endpoint for codesystem creation.
 router.post('/admin/codesystem', async (req, res) => {
 
-    // TODO: review the HTTP response codes according to the specification.
     try {
 
         // Read the Mustache templates.
-        const template = await utils.readTemplate('templates/OperationOutcome.mustache');
+        const template = utils.readTemplate('templates/OperationOutcome.mustache');
         let filledTemplate = '';
 
         // For evaluation and adjustements.
@@ -26,7 +27,7 @@ router.post('/admin/codesystem', async (req, res) => {
         if(codeSystem.resourceType !== "CodeSystem") {
 
             // Only CodeSystems are accepted.
-            filledTemplate = await utils.renderTemplate(template, {
+            filledTemplate = utils.renderTemplate(template, {
                 div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-001: ${utils.ftsErrors['FTS-E-001']}.</h3>Expected &quot;CodeSystem&quot;, but found &quot;${codeSystem.resourceType}&quot;.</div>`,
                 severity: "error",
                 code: "processing",
@@ -44,7 +45,7 @@ router.post('/admin/codesystem', async (req, res) => {
         codeSystem.meta.lastUpdated = date.format(new Date(), 'YYYY-MM-DDTHH:mm:ss.SSSZZ');
 
         // Validate the CodeSystem structure using the FHIR® JSON schema.
-        const { valid, errors } = await utils.validateTerminologyStructure(JSON.stringify(codeSystem));
+        const { valid, errors } = utils.validateTerminologyStructure(JSON.stringify(codeSystem));
         if (!valid) {
 
             // Return the fist error.
@@ -53,7 +54,7 @@ router.post('/admin/codesystem', async (req, res) => {
             // The second call to JSON.stringify introduces quotation marks at the beginning and
             // at the end of the string. Both are removed to guarantee the correct JSON validation.
             firstError = firstError.replace(/^\"|\"$/g, '');
-            filledTemplate = await utils.renderTemplate(template, {
+            filledTemplate = utils.renderTemplate(template, {
                 div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-002: ${utils.ftsErrors['FTS-E-002']}.</h3>${firstError}</div>`,
                 severity: "error",
                 code: "processing",
@@ -65,6 +66,7 @@ router.post('/admin/codesystem', async (req, res) => {
         }
 
         // Save the CodeSystem to disk.
+        // TODO: move to utils.js.
         await fs.writeFile(`${process.env.TERMINOLOGIES_BASEPATH}/codesystems/${codeSystem.id}_${codeSystem.meta.versionId}.json`,
             JSON.stringify(codeSystem), { encoding: 'utf8' }, (err) => {
             if (err) {
