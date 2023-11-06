@@ -1,0 +1,84 @@
+{
+	"resourceType": "CodeSystem",
+	"url": "https://alexandresavaris.org/fhir/r4/StructureDefinition/CodeSystemCboGrandeGrupo",
+	"version": "CBO2002",
+	"name": "CodeSystemCboGrandeGrupo",
+	"title": "Grandes grupos de acordo com a CBO (Classificação Brasileira de Ocupações)",
+	"status": "active",
+	"experimental": false,
+	"date": "2023-05-01",
+	"publisher": "Alexandre Savaris",
+	"contact": [
+		{
+			"name": "Alexandre Savaris",
+			"telecom": [
+				{
+					"system": "email",
+					"value": "alexandre.savaris@gmail.com",
+					"use": "work",
+					"rank": 1
+				}
+			]
+		}
+	],
+	"description": "CodeSystem para a Classificação Brasileira de Ocupações (CBO) em nível de grande grupo.",
+	"jurisdiction": [
+		{
+			"coding": [
+				{
+					"system": "urn:iso:std:iso:3166",
+					"code": "BRA",
+					"display": "Brazil",
+					"userSelected": true
+				}
+			]
+		}
+	],
+	"purpose": "Relacionar códigos e descrições para a Classificação Brasileira de Ocupações (CBO) em nível de grande grupo.",
+	"caseSensitive": true,
+	"versionNeeded": true,
+	"content": "complete",
+	"count": 10,
+	"concept": [
+		{
+			"code": "0",
+			"display": "MEMBROS DAS FORÇAS ARMADAS, POLICIAIS E BOMBEIROS MILITARES"
+		},
+		{
+			"code": "1",
+			"display": "MEMBROS SUPERIORES DO PODER PÚBLICO, DIRIGENTES DE ORGANIZAÇÕES DE INTERESSE PÚBLICO E DE EMPRESAS, GERENTES"
+		},
+		{
+			"code": "2",
+			"display": "PROFISSIONAIS DAS CIÊNCIAS E DAS ARTES"
+		},
+		{
+			"code": "3",
+			"display": "TÉCNICOS DE NIVEL MÉDIO"
+		},
+		{
+			"code": "4",
+			"display": "TRABALHADORES DE SERVIÇOS ADMINISTRATIVOS"
+		},
+		{
+			"code": "5",
+			"display": "TRABALHADORES DOS SERVIÇOS, VENDEDORES DO COMÉRCIO EM LOJAS E MERCADOS"
+		},
+		{
+			"code": "6",
+			"display": "TRABALHADORES AGROPECUÁRIOS, FLORESTAIS E DA PESCA"
+		},
+		{
+			"code": "7",
+			"display": "TRABALHADORES DA PRODUÇÃO DE BENS E SERVIÇOS INDUSTRIAIS"
+		},
+		{
+			"code": "8",
+			"display": "TRABALHADORES DA PRODUÇÃO DE BENS E SERVIÇOS INDUSTRIAIS"
+		},
+		{
+			"code": "9",
+			"display": "TRABALHADORES EM SERVIÇOS DE REPARAÇÃO E MANUTENÇÃO"
+		}
+	]
+}
