@@ -14,9 +14,13 @@ const port = process.env.PORT;
 global.lastGeneratedId = 0;
 // The ManyKeysMap for storing terminologies into memory.
 global.terminologies = new ManyKeysMap();
+// Mustache templates.
+global.templates = new Object();
 
 // Load CodeSystems from disk.
 utils.loadCodeSystemsFromDisk();
+// Load templates from disk.
+utils.loadTemplatesFromDisk();
 
 // A new express instance.
 const app = express();
