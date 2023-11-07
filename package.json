@@ -9,6 +9,14 @@
     "dev": "env-cmd -f ./config/dev.env nodemon --ignore ./terminologies ./src/index.js",
     "test": "env-cmd -f ./config/test.env jest --watch --runInBand"
   },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(many-keys-map)/)"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/terminologies/"
+    ]
+  },
   "keywords": [
     "FHIR",
     "Terminology"

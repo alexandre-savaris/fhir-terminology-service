@@ -11,9 +11,9 @@ test('Should receive a valid CodeSystem', async () => {
     // Retrieve the file content.
     const fileContent = fs.readFileSync('./tests/fixtures/CodeSystemCboGrandeGrupo.json');
 
-    // ???
+    // POST the valid CodeSystem.
     const response = await request(app)
         .post('/admin/codesystem')
-        .send(fileContent.toString())
+        .send(JSON.parse(fileContent.toString()))
         .expect(201);
-})
+});

@@ -2,12 +2,10 @@
 import ManyKeysMap from 'many-keys-map';
 // For accessing the utility functions.
 import * as utils from '../lib/utils.js';
-
 // For listening to HTTP requests.
 import express from 'express';
 // For routing administrative endpoints.
 import * as adminRouter from './routers/admin.js';
-
 
 // Last generated ID for POSTed terminologies.
 global.lastGeneratedId = 0;
@@ -20,9 +18,6 @@ global.templates = new Object();
 utils.loadCodeSystemsFromDisk();
 // Load templates from disk.
 utils.loadTemplatesFromDisk();
-
-
-
 
 // A new express instance.
 const app = express();
