@@ -12,8 +12,55 @@ import date from 'date-and-time';
 // Router for the administrative endpoints.
 const router = new express.Router()
 
-// Endpoint for codesystem creation.
-router.post('/admin/codesystem', async (req, res) => {
+
+
+
+
+// Endpoint for CodeSystem retrieval.
+router.get('/CodeSystem/:id', async (req, res) => {
+
+    try {
+
+        // For generating response bodies.
+        let operationOutcomeFilledTemplate = '';
+
+        // Retrieve metadata from the requested CodeSystem.
+        const lastVersionId = terminologiesMetadata[req.params.id].lastVersionId;
+
+        if (!lastVersionId) {
+
+            // The requested terminology does not exist.
+            operationOutcomeFilledTemplate = Mustache.render(templates['OperationOutcome'], {
+                div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-004: ${utils.ftsErrors['FTS-E-004']}.</h3>.</div>`,
+                severity: "error",
+                code: "processing",
+                diagnostics: `FTS-E-004: ${utils.ftsErrors['FTS-E-004']}.`
+            }, { });
+
+            return res.status(404).setHeader('Content-Type', 'application/fhir+json').send(operationOutcomeFilledTemplate);
+        }
+
+    } catch (e) {
+
+        operationOutcomeFilledTemplate = Mustache.render(templates['OperationOutcome'], {
+            div: `<div xmlns=\\"http://www.w3.org/1999/xhtml\\"><h1>Operation Outcome</h1><h2>ERROR</h2><h3>FTS-E-003: ${utils.ftsErrors['FTS-E-003']}.</h3> ${e}</div>`,
+            severity: "error",
+            code: "processing",
+            diagnostics: `FTS-E-003: ${utils.ftsErrors['FTS-E-003']}. ${e}`
+        }, { });
+
+        return res.status(500).setHeader('Content-Type', 'application/fhir+json').send(operationOutcomeFilledTemplate);
+    }
+});
+
+
+
+
+
+
+
+// Endpoint for CodeSystem creation.
+router.post('/CodeSystem', async (req, res) => {
 
     try {
 
@@ -72,7 +119,11 @@ router.post('/admin/codesystem', async (req, res) => {
 //         //     console.log(keys);
 //         //     console.log(value);
 //         // }
-        
+
+        // Update the terminology's metadata.
+        utils.updateTerminologyMetadata(codeSystem.id, parseInt(codeSystem.meta.versionId));
+        console.log(terminologiesMetadata);
+
         // Success!
         return res.status(201).send(codeSystem);
 
@@ -87,7 +138,7 @@ router.post('/admin/codesystem', async (req, res) => {
 
         return res.status(500).setHeader('Content-Type', 'application/fhir+json').send(operationOutcomeFilledTemplate);
     }
-})
+});
 
 // Export the router.
 export {

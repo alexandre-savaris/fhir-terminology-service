@@ -26,7 +26,7 @@ test('Should receive a valid CodeSystem', async () => {
 
     // POST the valid CodeSystem.
     const response = await request(app)
-        .post('/admin/codesystem')
+        .post('/CodeSystem')
         .send(JSON.parse(fileContent.toString()))
         .expect(201);
 }, 10000);

@@ -5,12 +5,14 @@ import * as utils from '../lib/utils.js';
 // For listening to HTTP requests.
 import express from 'express';
 // For routing administrative endpoints.
-import * as adminRouter from './routers/admin.js';
+import * as adminRouter from './routers/codesystem.js';
 
 // Last generated ID for POSTed terminologies.
 global.lastGeneratedId = 0;
-// The ManyKeysMap for storing terminologies into memory.
+// ManyKeysMap for storing terminologies into memory.
 global.terminologies = new ManyKeysMap();
+// Terminologies metadata.
+global.terminologiesMetadata = new Object();
 // Mustache templates.
 global.templates = new Object();
 
