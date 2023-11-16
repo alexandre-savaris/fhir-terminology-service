@@ -12,22 +12,16 @@ import date from 'date-and-time';
 // Router for the administrative endpoints.
 const router = new express.Router()
 
-
-
-
-
 // Endpoint for CodeSystem retrieval.
 router.get('/CodeSystem/:id', async (req, res) => {
 
+    // For generating response bodies.
+    let operationOutcomeFilledTemplate = '';
+
     try {
 
-        // For generating response bodies.
-        let operationOutcomeFilledTemplate = '';
-
         // Retrieve metadata from the requested CodeSystem.
-        const lastVersionId = terminologiesMetadata[req.params.id].lastVersionId;
-
-        if (!lastVersionId) {
+        if (!terminologiesMetadata[req.params.id]) {
 
             // The requested terminology does not exist.
             operationOutcomeFilledTemplate = Mustache.render(templates['OperationOutcome'], {
@@ -38,7 +32,12 @@ router.get('/CodeSystem/:id', async (req, res) => {
             }, { });
 
             return res.status(404).setHeader('Content-Type', 'application/fhir+json').send(operationOutcomeFilledTemplate);
+
         }
+
+        // Load the CodeSystem from disk.
+        const codeSystem = utils.loadCodeSystemFromDisk(req.params.id, terminologiesMetadata[req.params.id].lastVersionId);
+        return res.status(200).setHeader('Content-Type', 'application/fhir+json').send(codeSystem);
 
     } catch (e) {
 
@@ -52,12 +51,6 @@ router.get('/CodeSystem/:id', async (req, res) => {
         return res.status(500).setHeader('Content-Type', 'application/fhir+json').send(operationOutcomeFilledTemplate);
     }
 });
-
-
-
-
-
-
 
 // Endpoint for CodeSystem creation.
 router.post('/CodeSystem', async (req, res) => {
@@ -113,8 +106,8 @@ router.post('/CodeSystem', async (req, res) => {
         fs.writeFileSync(`${process.env.TERMINOLOGIES_BASEPATH}/codesystems/${codeSystem.id}_${codeSystem.meta.versionId}.json`,
             JSON.stringify(codeSystem));
 
-        // Load the CodeSystem into the memory map.
-        utils.loadCodeSystemIntoManyKeysMap(codeSystem.id, codeSystem.meta.versionId, codeSystem.concept);
+        // Insert the CodeSystem into the memory map.
+        utils.insertCodeSystemIntoManyKeysMap(codeSystem.id, codeSystem.meta.versionId, codeSystem.concept);
 //         // for (const [keys, value] of terminologies) {
 //         //     console.log(keys);
 //         //     console.log(value);
